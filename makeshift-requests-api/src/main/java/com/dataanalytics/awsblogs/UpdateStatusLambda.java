@@ -49,6 +49,7 @@ public class UpdateStatusLambda implements RequestHandler<StepRequestData, Strin
             if( !describeClusterResult.getCluster().getStatus().getState().equalsIgnoreCase("terminated")
                     && describeClusterResult.getCluster().getTags().size() <= 1 ){
                 List<Tag> tags = new ArrayList<>();
+                //todo add the value from param store
                 tags.add(new Tag("Cost_Center",cognitoId));
                 emr.addTags(new AddTagsRequest(clusterId,tags ));
             }
