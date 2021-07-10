@@ -1,4 +1,4 @@
-Enable REST API for Amazon EMR Spark jobs using Amazon API Gateway and Amazon Cognito User Pools as authorizer
+# Enable REST API for Amazon EMR Spark jobs using Amazon API Gateway and Amazon Cognito User Pools as authorizer
 
 For many large enterprise organizations, providing access to a refined dataset to various business divisions can be a challenge. Oftentimes, AWS customers want to provide a secure way to other business units to run ad-hoc Amazon EMR batch jobs on a raw dataset and provide a transformed version of the data. Usually, there will be a business unit that owns the actual raw dataset and provides the transformed, ready to use dataset to other business units and charge back them based on how much data they are accessing and how much processing is required to provide the transformed data. The requesting business units do not need to know how the data is processed or what is happening behind the scenes to get this ready-to-use data set. All they care about is to provide how much data and what parameters are needed from the actual data set. At the same time, these requests need to be authenticated and authorized first by the providing business unit and provide an easy REST-compliant API service to the requested business units.
 
@@ -6,7 +6,8 @@ In this blog post, we will walk you through an approach that leverages Amazon Co
 
 Here is the architecture diagram that illustrate the above-mentioned process.
 
-![](RackMultipart20210709-4-1ktie86_html_bcfbaa74bd0445c.png)
+![Picture1](https://user-images.githubusercontent.com/16944344/125143220-96f68800-e0df-11eb-9a6b-8ad79f0a5f4c.png)
+
 **Solution Overview**
 
 The steps we will follow in this blog post are:
@@ -222,28 +223,29 @@ First login to Amazon Cognito service in your AWS account and click on &quot;Man
 
 Once you click on the correct pool name, it will show something like below.
 
-![](RackMultipart20210709-4-1ktie86_html_9f3b9f06f7dd1825.png)
+![Picture2](https://user-images.githubusercontent.com/16944344/125143730-3405f080-e0e1-11eb-9744-68fda70d8991.png)
 
 Click on the App clients on the left-hand side menu as highlighted in the above picture.
 
-![](RackMultipart20210709-4-1ktie86_html_3fc6f9c2420c9e63.png)
+![Picture3](https://user-images.githubusercontent.com/16944344/125143852-a37be000-e0e1-11eb-8925-a917e802c9f5.png)
 
 Now get the Amazon Cognito domain name from the &quot;Domain name&quot; section as shown below.
 
-![](RackMultipart20210709-4-1ktie86_html_c47b4e8a41cf3607.png) ![](RackMultipart20210709-4-1ktie86_html_23514811b3d8ce58.gif)
+![Picture4](https://user-images.githubusercontent.com/16944344/125143885-babacd80-e0e1-11eb-80b7-773099e88592.png)
 
 **Getting the Amazon Cognito token:**
 
 Open the Postman app and click on the New button. And in the &quot;Create New&quot; window, select the &quot;Collection&quot; tab as shown below.
- ![](RackMultipart20210709-4-1ktie86_html_3b8600d4f58a74a3.png)
+ 
+ ![Picture5](https://user-images.githubusercontent.com/16944344/125143958-ef2e8980-e0e1-11eb-9836-c3c6741d854d.png)
 
 Provide a name to the collection and under &quot;Authorization&quot;, select &quot;Basic Auth&quot; option. And provide the Username and Password. Username will be Cognito &quot;App client Id&quot; and Password will be Cognito &quot;App client secret&quot;.
 
-![](RackMultipart20210709-4-1ktie86_html_1f7d057aff68e925.png)
+![Picture6](https://user-images.githubusercontent.com/16944344/125143993-0f5e4880-e0e2-11eb-813b-f5a3558cbe70.png)
 
 Next we need to create a &quot;Request&quot; under this &quot;Collection&quot;. Click on the three dots next to the Collection name and select &quot;Add Request&quot; as shown in the following screen shot.
 
-![](RackMultipart20210709-4-1ktie86_html_a28d2839a1a95933.png)
+![Picture7](https://user-images.githubusercontent.com/16944344/125144018-24d37280-e0e2-11eb-9a26-89f132c8e396.png)
 
 In the &quot;Save Request&quot; window, provide the &quot;Request name&quot; and click on &quot;Save&quot; button.
 
@@ -253,7 +255,7 @@ In the &quot;Request&quot; window, select &quot;POST&quot; as the request type, 
 
 And in &quot;Authorization&quot; select &quot;Basic Auth&quot; and provide the &quot;Username&quot; and &quot;Password&quot;.
 
-![](RackMultipart20210709-4-1ktie86_html_f77364b1bfe1ca05.png)
+![Picture8](https://user-images.githubusercontent.com/16944344/125144056-43d20480-e0e2-11eb-88d2-1f1c5e592c66.png)
 
 And in the &quot;Headers&quot; tab, add a new key with the below values.
 
@@ -265,7 +267,7 @@ In the body tab, click on &quot;raw&quot; and add &quot;grant\_type=client\_cred
 
 Now save this configuration and click on &quot;Send&quot; button. It will display the &quot;access\_token&quot; information as shown in the below screen shot.
 
-![](RackMultipart20210709-4-1ktie86_html_42a98ece6018eeda.png)
+![Picture9](https://user-images.githubusercontent.com/16944344/125144084-5a785b80-e0e2-11eb-8b08-5ddc501d12cb.png)
 
 **Invoking the API calls using curl command:**
 
@@ -273,11 +275,11 @@ As mentioned before, we have created two APIs: one to invoke a predefined EMR sp
 
 **Resources for &quot;startAnalyticsJob&quot;:**
 
-![](RackMultipart20210709-4-1ktie86_html_b737952e42e20840.png)
+![Picture10](https://user-images.githubusercontent.com/16944344/125144401-644e8e80-e0e3-11eb-91e9-9ecb944276bf.png)
 
 **Resources for &quot;getJobStatus&quot;:**
 
-![](RackMultipart20210709-4-1ktie86_html_c4ba09218569ba9.png)
+![Picture12](https://user-images.githubusercontent.com/16944344/125150125-e26e5d80-e102-11eb-8018-33e2ca7f9e39.png)
 
 Before we invoke APIs, first let&#39;s get the API Gateway URLs. After executing the step 6 cloud formation template, the output will contain 2 endpoints URLS. One for invoking the batch job(StartAnalyticsJobInvokeURL) and the other one is to check the status(GetJobStatusInvokeURL) of the job.
 
@@ -299,7 +301,7 @@ From the Amazon Cognito token, we can get the Cognito Id, and we use this Cognit
 
 If you login to Step functions web UI, you will see the below state machine graph definition. When the user invokes the &quot;startAnalyticsJob&quot; API call, first it creates an Amazon EMR cluster and at the same time, it stores the job information in the Dynamo DB table. Once the EMR cluster creation is complete, it will start the EMR step function which executes the EMR Spark job. At the same time, for every 60 seconds, the state machine checks the status of the EMR Spark job execution. When the job is completed, it updates the status in the dynamo DB table with &quot;Failed&quot; or &quot;Success&quot; as status depending on the result.
 
-![](RackMultipart20210709-4-1ktie86_html_26941956d9722451.png)
+![Picture13](https://user-images.githubusercontent.com/16944344/125150139-0cc01b00-e103-11eb-9911-e6093e0e25f4.png)
 
 To get the status of the job, get the job id from the above and run the below curl command.
 
